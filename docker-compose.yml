@@ -1,10 +1,10 @@
 services:
 
   dashboard:
-    build: app/src/dashboard/
+    build: src/dashboard/
 
-  stocks:
-    build: app/src/stocks/
+  producer:
+    build: src/producer/
 
   db:
     image: postgres:latest
