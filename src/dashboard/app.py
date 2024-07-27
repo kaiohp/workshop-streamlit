@@ -4,7 +4,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from src.producer.main import generate_fake_order, regions, vendors
+from src.consumer.main import consume
+from src.producer.main import regions, vendors
 
 st.set_page_config(
     page_title="Workshop Streamlit - Real Time Dashboard",
@@ -24,6 +25,7 @@ def get_data():
 
 df = get_data()
 
+
 st.title("Workshop Streamlit - Real Time Dashboard")
 
 with st.sidebar:
@@ -34,13 +36,6 @@ with st.sidebar:
 charts_placeholder = st.empty()
 
 while True:
-
-    new_order = generate_fake_order()
-    new_order_df = pd.DataFrame([new_order])
-    new_order_df["order_date"] = pd.to_datetime(new_order_df["order_date"])
-    
-
-    df = pd.concat([df, new_order_df], ignore_index=True)
 
     with charts_placeholder.container():
         quantity, itens_sold, ticket, total = st.columns(4)
@@ -84,4 +79,9 @@ while True:
         st.markdown("Detailed Data View")
 
         st.dataframe(df.iloc[::-1])
+
+        new_order = consume()
+        new_order_df = pd.DataFrame([new_order])
+        new_order_df["order_date"] = pd.to_datetime(new_order_df["order_date"])
+        df = pd.concat([df, new_order_df], ignore_index=True)
         time.sleep(1)

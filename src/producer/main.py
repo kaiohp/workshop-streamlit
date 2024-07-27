@@ -1,4 +1,11 @@
+import json
+import os
+
+from confluent_kafka import Producer
+from dotenv import load_dotenv
 from faker import Faker
+
+load_dotenv()
 
 fake = Faker("pt_BR")
 
@@ -9,7 +16,7 @@ vendors = ["Kaio Silva", "Luciano Galvão", "Fabio Melo", "Estagiario"]
 def generate_fake_order():
 
     order_id = fake.uuid4()
-    order_date = fake.date_between(start_date="-1y", end_date="today")
+    order_date = str(fake.date_between(start_date="-1y", end_date="today"))
     product_id = fake.uuid4()
     region = fake.random_element(elements=regions)
     vendor = fake.random_element(elements=vendors)
@@ -28,8 +35,35 @@ def generate_fake_order():
     }
 
 
-if __name__ == "__main__":
+producer_conf = {
+    # Required connection configs for Kafka producer, consumer, and admin
+    "bootstrap.servers": os.environ["BOOTSTRAP_SERVERS"],
+    "security.protocol": "SASL_SSL",
+    "sasl.mechanisms": "PLAIN",
+    "sasl.username": os.environ["SASL_USERNAME"],
+    "sasl.password": os.environ["SASL_PASSWORD"],
+}
+
+
+def produce():
+    producer = Producer(producer_conf)
+    data = generate_fake_order()
+    key = data["order_id"]
+    value = json.dumps(data)
+    producer.produce(topic="orders", key=key, value=value)
+    print(f"Produced message to topic orders with key {key}: value = {value}")
+
+    producer.flush()
+
+
+def generate_csv():
     import pandas as pd
 
-    data = [generate_fake_order() for _ in range(10000)]
-    pd.DataFrame(data).to_csv("orders.csv", index=False)
+    data = [generate_fake_order() for _ in range(100_000)]
+    pd.DataFrame(data).to_csv("data/orders.csv", index=False)
+
+
+if __name__ == "__main__":
+
+    while True:
+        produce()
