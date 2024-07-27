@@ -37,7 +37,7 @@ def consume():
                 print(
                     f"Consumed message from topic orders: key = {key:12} value = {value:12}"
                 )
-
+                yield json.loads(value)
     except KeyboardInterrupt:
         pass
     finally:
