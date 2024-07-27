@@ -44,9 +44,10 @@ producer_conf = {
     "sasl.password": os.environ["SASL_PASSWORD"],
 }
 
+producer = Producer(producer_conf)
+
 
 def produce():
-    producer = Producer(producer_conf)
     data = generate_fake_order(start_date="today", end_date="today")
     key = data["order_id"]
     value = json.dumps(data)

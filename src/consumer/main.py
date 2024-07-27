@@ -15,14 +15,15 @@ consumer_conf = {
     "sasl.password": os.environ["SASL_PASSWORD"],
 }
 
+consumer_conf["group.id"] = "streamlit-app"
+consumer_conf["auto.offset.reset"] = "earliest"
+
+# creates a new consumer instance
+consumer = Consumer(consumer_conf)
+
 
 def consume():
     # sets the consumer group ID and offset
-    consumer_conf["group.id"] = "streamlit-app"
-    consumer_conf["auto.offset.reset"] = "earliest"
-
-    # creates a new consumer instance
-    consumer = Consumer(consumer_conf)
 
     # subscribes to the specified topic
     consumer.subscribe(["orders"])
