@@ -13,10 +13,10 @@ regions = ["Rio de Janeiro", "Tocantins", "São Paulo"]
 vendors = ["Kaio Silva", "Luciano Galvão", "Fabio Melo", "Estagiario"]
 
 
-def generate_fake_order():
+def generate_fake_order(start_date="-1y", end_date="today"):
 
     order_id = fake.uuid4()
-    order_date = str(fake.date_between(start_date="-1y", end_date="today"))
+    order_date = str(fake.date_between(start_date=start_date, end_date=end_date))
     product_id = fake.uuid4()
     region = fake.random_element(elements=regions)
     vendor = fake.random_element(elements=vendors)
@@ -47,7 +47,7 @@ producer_conf = {
 
 def produce():
     producer = Producer(producer_conf)
-    data = generate_fake_order()
+    data = generate_fake_order(start_date="today", end_date="today")
     key = data["order_id"]
     value = json.dumps(data)
     producer.produce(topic="orders", key=key, value=value)
@@ -56,10 +56,10 @@ def produce():
     producer.flush()
 
 
-def generate_csv():
+def generate_csv(n_rows=10_000):
     import pandas as pd
 
-    data = [generate_fake_order() for _ in range(100_000)]
+    data = [generate_fake_order() for _ in range(n_rows)]
     pd.DataFrame(data).to_csv("data/orders.csv", index=False)
 
 
